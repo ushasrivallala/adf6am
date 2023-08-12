@@ -1,0 +1,9 @@
+{
+	"name": "adfusha123",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "da172dae-7ac0-4906-ba0e-e9f04585ba18",
+		"tenantId": "9681bb0a-e269-4887-81c0-66b9ed6aa7cd"
+	}
+}
