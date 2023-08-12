@@ -12,8 +12,20 @@
 					"name": "srcCustomer"
 				}
 			],
-			"sinks": [],
-			"transformations": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_azSQL_DATASTORE_customer1",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          CustomerKey as short,",
@@ -21,7 +33,25 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> srcCustomer"
+				"     ignoreNoFilesFound: false) ~> srcCustomer",
+				"srcCustomer derive(FirstName = left(CustomerName,instr(CustomerName, ' ')),",
+				"          LastName = right(CustomerName,length(CustomerName)-instr(CustomerName,' '))) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          CustomerKey as integer,",
+				"          CustomerName as string,",
+				"          FirstName as string,",
+				"          LastName as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}
