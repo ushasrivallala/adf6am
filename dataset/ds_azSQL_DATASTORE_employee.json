@@ -1,0 +1,51 @@
+{
+	"name": "ds_azSQL_DATASTORE_employee",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_azSQL_DATASTORE",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Empno",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Ename",
+				"type": "varchar"
+			},
+			{
+				"name": "Job",
+				"type": "varchar"
+			},
+			{
+				"name": "year",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "monthname",
+				"type": "varchar"
+			},
+			{
+				"name": "Salary",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "Comm",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "employee"
+		}
+	}
+}
