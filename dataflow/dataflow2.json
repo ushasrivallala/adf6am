@@ -1,0 +1,75 @@
+{
+	"name": "dataflow2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_datafiles_input_employee",
+						"type": "DatasetReference"
+					},
+					"name": "srcEmployee"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_azSQL_DATASTORE_employee",
+						"type": "DatasetReference"
+					},
+					"name": "snkEmployee"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EmployeeNO as short,",
+				"          Ename as string,",
+				"          Job as string,",
+				"          Hiredate as date,",
+				"          DepartmentNO as short,",
+				"          Sal as double,",
+				"          Comm as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> srcEmployee",
+				"srcEmployee derive(year = year(Hiredate),",
+				"          monthname = case(\r",
+				"    month(Hiredate)==1, \"Jan\", \r",
+				"    month(Hiredate)==2, \"feb\",\r",
+				"    month(Hiredate)==1, \"mar\",\r",
+				"    month(Hiredate)==1, \"apr\",\r",
+				"    month(Hiredate)==1, \"may\",\r",
+				"    month(Hiredate)==1, \"Jun\",\r",
+				"\r",
+				"    \"dec\"\r",
+				"    )) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Empno as integer,",
+				"          Ename as string,",
+				"          Job as string,",
+				"          year as integer,",
+				"          monthname as string,",
+				"          Salary as decimal(19,4),",
+				"          Comm as decimal(19,4)",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> snkEmployee"
+			]
+		}
+	}
+}
