@@ -68,7 +68,16 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError') ~> snkEmployee"
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Empno = EmployeeNO,",
+				"          Ename,",
+				"          Job,",
+				"          year,",
+				"          monthname,",
+				"          Salary = Sal,",
+				"          Comm",
+				"     )) ~> snkEmployee"
 			]
 		}
 	}
