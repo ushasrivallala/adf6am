@@ -1,0 +1,96 @@
+{
+	"name": "dataflow5",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_datafiles_input_employee",
+						"type": "DatasetReference"
+					},
+					"name": "srcEmployee"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_datafiles_input_department",
+						"type": "DatasetReference"
+					},
+					"name": "srcDepartment"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_azSQL_DATASTORE_employeedetails_lkp",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "lookup1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EmployeeNO as short,",
+				"          Ename as string,",
+				"          Job as string,",
+				"          Hiredate as date,",
+				"          DepartmentNO as short,",
+				"          Sal as double,",
+				"          Comm as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> srcEmployee",
+				"source(output(",
+				"          DepartmentNO as short,",
+				"          DNAME as string,",
+				"          LOC as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> srcDepartment",
+				"srcEmployee, srcDepartment lookup(srcEmployee@DepartmentNO == srcDepartment@DepartmentNO,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          EmployeeNO as integer,",
+				"          Ename as string,",
+				"          Job as string,",
+				"          Hiredate as date,",
+				"          DepartmentNO as integer,",
+				"          Dname as string,",
+				"          Location as string,",
+				"          Salary as decimal(19,4),",
+				"          Commission as decimal(19,4)",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          EmployeeNO,",
+				"          Ename,",
+				"          Job,",
+				"          Hiredate,",
+				"          DepartmentNO = srcEmployee@DepartmentNO,",
+				"          Dname = DNAME,",
+				"          Location = LOC,",
+				"          Salary = Sal,",
+				"          Commission = Comm",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

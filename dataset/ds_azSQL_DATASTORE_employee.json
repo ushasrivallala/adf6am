@@ -1,0 +1,16 @@
+{
+	"name": "ds_azSQL_DATASTORE_employee",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_azSQL_DATASTORE",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "employee"
+		}
+	}
+}

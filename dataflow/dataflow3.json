@@ -1,0 +1,67 @@
+{
+	"name": "dataflow3",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_datafiles_input_employee",
+						"type": "DatasetReference"
+					},
+					"name": "srcEmployee"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_azSQL_DATASTORE_employee",
+						"type": "DatasetReference"
+					},
+					"name": "snkEmployee"
+				}
+			],
+			"transformations": [
+				{
+					"name": "sort1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EmployeeNO as short,",
+				"          Ename as string,",
+				"          Job as string,",
+				"          Hiredate as date,",
+				"          DepartmentNO as short,",
+				"          Sal as double,",
+				"          Comm as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> srcEmployee",
+				"srcEmployee sort(asc(DepartmentNO, true),",
+				"     desc(Sal, true),",
+				"     partitionBy('hash', 1)) ~> sort1",
+				"sort1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          EmployeeNO,",
+				"          Ename,",
+				"          DepartmentNO,",
+				"          Hiredate,",
+				"          Job,",
+				"          Sal,",
+				"          Comm",
+				"     )) ~> snkEmployee"
+			]
+		}
+	}
+}

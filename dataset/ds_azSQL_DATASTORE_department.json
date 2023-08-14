@@ -1,0 +1,30 @@
+{
+	"name": "ds_azSQL_DATASTORE_department",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_azSQL_DATASTORE",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "DepartmentNO",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Dname",
+				"type": "varchar"
+			},
+			{
+				"name": "Loc",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "department"
+		}
+	}
+}
