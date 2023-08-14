@@ -53,7 +53,7 @@
 		],
 		"typeProperties": {
 			"schema": "dbo",
-			"table": "employeedetails"
+			"table": "employeedetails_lkp"
 		}
 	}
 }
