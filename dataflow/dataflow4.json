@@ -55,7 +55,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> srcDepartment",
 				"srcEmployee, srcDepartment join(srcEmployee@DepartmentNO == srcDepartment@DepartmentNO,",
-				"     joinType:'inner',",
+				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1",
