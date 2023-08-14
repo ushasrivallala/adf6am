@@ -7,42 +7,7 @@
 		},
 		"annotations": [],
 		"type": "AzureSqlTable",
-		"schema": [
-			{
-				"name": "EmployeeNO",
-				"type": "int",
-				"precision": 10
-			},
-			{
-				"name": "Ename",
-				"type": "varchar"
-			},
-			{
-				"name": "DepartmentNO",
-				"type": "int",
-				"precision": 10
-			},
-			{
-				"name": "Hiredate",
-				"type": "date"
-			},
-			{
-				"name": "Job",
-				"type": "varchar"
-			},
-			{
-				"name": "Sal",
-				"type": "money",
-				"precision": 19,
-				"scale": 4
-			},
-			{
-				"name": "Comm",
-				"type": "money",
-				"precision": 19,
-				"scale": 4
-			}
-		],
+		"schema": [],
 		"typeProperties": {
 			"schema": "dbo",
 			"table": "employee"
