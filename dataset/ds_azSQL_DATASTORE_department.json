@@ -9,23 +9,6 @@
 		"type": "AzureSqlTable",
 		"schema": [
 			{
-				"name": "EmployeeNO",
-				"type": "int",
-				"precision": 10
-			},
-			{
-				"name": "Ename",
-				"type": "varchar"
-			},
-			{
-				"name": "Job",
-				"type": "varchar"
-			},
-			{
-				"name": "Hiredate",
-				"type": "date"
-			},
-			{
 				"name": "DepartmentNO",
 				"type": "int",
 				"precision": 10
@@ -35,20 +18,8 @@
 				"type": "varchar"
 			},
 			{
-				"name": "Location",
+				"name": "Loc",
 				"type": "varchar"
-			},
-			{
-				"name": "Salary",
-				"type": "money",
-				"precision": 19,
-				"scale": 4
-			},
-			{
-				"name": "Commission",
-				"type": "money",
-				"precision": 19,
-				"scale": 4
 			}
 		],
 		"typeProperties": {
