@@ -138,11 +138,30 @@
 												"queryTimeout": "02:00:00",
 												"partitionOption": "None"
 											},
-											"enableStaging": false
+											"sink": {
+												"type": "AzureSqlSink",
+												"writeBehavior": "insert",
+												"sqlWriterUseTableLock": false
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
 										},
 										"inputs": [
 											{
 												"referenceName": "ds_azSQL_DATASTORE_Query",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "ds_azSQL_STG_employee",
 												"type": "DatasetReference"
 											}
 										]
@@ -205,7 +224,7 @@
 											"source": {
 												"type": "AzureSqlSource",
 												"sqlReaderQuery": {
-													"value": "UPDATE config\nSET max_last_updated_date=REPLACE(\n    '@{activity('Lookup3').output.firstRow.max_last_updated_date}','T',' ')\n)\nWHERE table_name='@{item().table_name}'\n\nSELECT '1'",
+													"value": "UPDATE config\nSET max_last_updated_date=REPLACE(\n    '@{activity('Lookup3').output.firstRow.max_last_updated_date}','T',' ')\nWHERE table_name='@{item().table_name}'\n\nSELECT '1'",
 													"type": "Expression"
 												},
 												"queryTimeout": "02:00:00",
