@@ -19,8 +19,39 @@
 					"name": "Dimcustomer"
 				}
 			],
-			"sinks": [],
-			"transformations": [],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Insertedflow"
+				},
+				{
+					"name": "Creatinsertedflag"
+				},
+				{
+					"name": "updatedflow"
+				},
+				{
+					"name": "updateisinsertedflag"
+				},
+				{
+					"name": "alterRow1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          Cno as integer,",
@@ -45,7 +76,43 @@
 				"     format: 'query',",
 				"     store: 'sqlserver',",
 				"     query: 'SELECT * FROM Dimcustomer',",
-				"     isolationLevel: 'READ_UNCOMMITTED') ~> Dimcustomer"
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> Dimcustomer",
+				"customer, Dimcustomer exists(customer@Cno == Dimcustomer@Cno,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> Insertedflow",
+				"Insertedflow derive(IsInserted = 0) ~> Creatinsertedflag",
+				"customer, Dimcustomer exists(customer@Cno == Dimcustomer@Cno,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> updatedflow",
+				"updatedflow derive(IsInserted = 1) ~> updateisinsertedflag",
+				"updateisinsertedflag alterRow(updateIf(true())) ~> alterRow1",
+				"Creatinsertedflag sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'Dimcustomer',",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'Dimcustomer',",
+				"     insertable: true,",
+				"     updateable: true,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     keys:['Cno'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink2"
 			]
 		}
 	}
