@@ -162,7 +162,13 @@
 										"outputs": [
 											{
 												"referenceName": "ds_azSQL_STG_employee",
-												"type": "DatasetReference"
+												"type": "DatasetReference",
+												"parameters": {
+													"tableName": {
+														"value": "@item().table_name",
+														"type": "Expression"
+													}
+												}
 											}
 										]
 									},

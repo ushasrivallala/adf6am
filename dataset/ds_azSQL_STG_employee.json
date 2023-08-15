@@ -5,6 +5,11 @@
 			"referenceName": "ls_azSQL_STG",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"tableName": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [
@@ -32,7 +37,10 @@
 		],
 		"typeProperties": {
 			"schema": "dbo",
-			"table": "employee"
+			"table": {
+				"value": "@dataset().tableName",
+				"type": "Expression"
+			}
 		}
 	}
 }
