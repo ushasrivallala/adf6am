@@ -59,6 +59,9 @@
 				},
 				{
 					"name": "select1"
+				},
+				{
+					"name": "select2"
 				}
 			],
 			"scriptLines": [
@@ -93,7 +96,7 @@
 				"customer, Dimcustomer exists(customer@Cno == Dimcustomer@Cno,",
 				"     negate:false,",
 				"     broadcast: 'auto')~> updatedflow",
-				"checkupdatetedcondition derive(IsInserted = 1) ~> updateisinsertedflag",
+				"select2 derive(IsInserted = 1) ~> updateisinsertedflag",
 				"updateisinsertedflag alterRow(updateIf(true())) ~> alterRow1",
 				"lookup1 filter(src_FName!=FName ||src_Location!=Location) ~> checkupdatetedcondition",
 				"select1, Dimcustomer lookup(src_Cno == Cno,",
@@ -107,6 +110,13 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
+				"checkupdatetedcondition select(mapColumn(",
+				"          Cno = src_Cno,",
+				"          FName = src_FName,",
+				"          Location = src_Location",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
 				"Creatinsertedflag sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table',",
