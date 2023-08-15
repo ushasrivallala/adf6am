@@ -50,6 +50,15 @@
 				},
 				{
 					"name": "alterRow1"
+				},
+				{
+					"name": "checkupdatetedcondition"
+				},
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "select1"
 				}
 			],
 			"scriptLines": [
@@ -84,8 +93,20 @@
 				"customer, Dimcustomer exists(customer@Cno == Dimcustomer@Cno,",
 				"     negate:false,",
 				"     broadcast: 'auto')~> updatedflow",
-				"updatedflow derive(IsInserted = 1) ~> updateisinsertedflag",
+				"checkupdatetedcondition derive(IsInserted = 1) ~> updateisinsertedflag",
 				"updateisinsertedflag alterRow(updateIf(true())) ~> alterRow1",
+				"lookup1 filter(src_FName!=FName ||src_Location!=Location) ~> checkupdatetedcondition",
+				"select1, Dimcustomer lookup(src_Cno == Cno,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"updatedflow select(mapColumn(",
+				"          src_Cno = Cno,",
+				"          src_FName = FName,",
+				"          src_Location = Location",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
 				"Creatinsertedflag sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table',",
