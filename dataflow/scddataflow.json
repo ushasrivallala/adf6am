@@ -1,0 +1,150 @@
+{
+	"name": "scddataflow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "customer"
+				},
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "Dimcustomer"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Insertedflow"
+				},
+				{
+					"name": "Creatinsertedflag"
+				},
+				{
+					"name": "updatedflow"
+				},
+				{
+					"name": "updateisinsertedflag"
+				},
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "checkupdatetedcondition"
+				},
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "select2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Cno as integer,",
+				"          FName as string,",
+				"          Location as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'query',",
+				"     store: 'sqlserver',",
+				"     query: 'SELECT * FROM customer',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> customer",
+				"source(output(",
+				"          CustKey as integer,",
+				"          Cno as integer,",
+				"          FName as string,",
+				"          Location as string,",
+				"          IsInserted as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'query',",
+				"     store: 'sqlserver',",
+				"     query: 'SELECT * FROM Dimcustomer',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> Dimcustomer",
+				"customer, Dimcustomer exists(customer@Cno == Dimcustomer@Cno,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> Insertedflow",
+				"Insertedflow derive(IsInserted = 0) ~> Creatinsertedflag",
+				"customer, Dimcustomer exists(customer@Cno == Dimcustomer@Cno,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> updatedflow",
+				"select2 derive(IsInserted = 1) ~> updateisinsertedflag",
+				"updateisinsertedflag alterRow(updateIf(true())) ~> alterRow1",
+				"lookup1 filter(src_FName!=FName ||src_Location!=Location) ~> checkupdatetedcondition",
+				"select1, Dimcustomer lookup(src_Cno == Cno,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"updatedflow select(mapColumn(",
+				"          src_Cno = Cno,",
+				"          src_FName = FName,",
+				"          src_Location = Location",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"checkupdatetedcondition select(mapColumn(",
+				"          Cno = src_Cno,",
+				"          FName = src_FName,",
+				"          Location = src_Location",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"Creatinsertedflag sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'Dimcustomer',",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'Dimcustomer',",
+				"     insertable: true,",
+				"     updateable: true,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     keys:['Cno'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink2"
+			]
+		}
+	}
+}

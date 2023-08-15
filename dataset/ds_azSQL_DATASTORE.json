@@ -1,0 +1,40 @@
+{
+	"name": "ds_azSQL_DATASTORE",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_azSQL_DATASTORE",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "CustKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Cno",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "FName",
+				"type": "varchar"
+			},
+			{
+				"name": "Location",
+				"type": "varchar"
+			},
+			{
+				"name": "IsInserted",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Dimcustomer"
+		}
+	}
+}
