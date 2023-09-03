@@ -43,6 +43,9 @@
 				},
 				{
 					"name": "select3"
+				},
+				{
+					"name": "lookup1"
 				}
 			],
 			"scriptLines": [
@@ -96,12 +99,16 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select3",
+				"select1, select2 lookup(Src_Cno == Trg_Cno,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
 				"select3 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table',",
 				"     store: 'sqlserver',",
 				"     schemaName: 'dbo',",
-				"     tableName: 'customer',",
+				"     tableName: 'dimcustomer',",
 				"     insertable: true,",
 				"     updateable: false,",
 				"     deletable: false,",
