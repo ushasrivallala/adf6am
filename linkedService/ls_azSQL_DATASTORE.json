@@ -6,7 +6,7 @@
 		"type": "AzureSqlDatabase",
 		"typeProperties": {
 			"connectionString": "integrated security=False;encrypt=True;connection timeout=30;data source=ushasql.database.windows.net;initial catalog=DATASTORE;user id=usha",
-			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDY4QzM4NjIwLTdEN0MtNEY2OC05NjNDLTlGODNENjA4RDQ5MF8wMGU5ZTI2OS1lYzVkLTRiOTktYjE4NS1kNDM4NDMwNzFkYzIiDQp9"
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEZFNEU2RTAwLTlFQ0EtNDEwRC1CREYyLTQ3OThDREJFMzcxMl9iZWExMTU4ZS02MmY0LTQ4NzctYjRjZS1iNGM5N2Q4OWU5MTAiDQp9"
 		}
 	}
 }
