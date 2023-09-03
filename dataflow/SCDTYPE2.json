@@ -146,7 +146,8 @@
 				"derivedColumn1 select(mapColumn(",
 				"          CustKey = Trg_CustKey,",
 				"          isUpdated,",
-				"          EndDate",
+				"          EndDate,",
+				"          StartDate",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select5",
@@ -189,7 +190,8 @@
 				"     mapColumn(",
 				"          CustKey,",
 				"          IsInserted = isUpdated,",
-				"          EndDate",
+				"          EndDate,",
+				"          StartDate",
 				"     )) ~> sink2"
 			]
 		}
