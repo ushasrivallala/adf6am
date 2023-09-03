@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "scd2pipeline",
 	"properties": {
 		"activities": [
 			{
@@ -15,6 +15,10 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
+					"dataflow": {
+						"referenceName": "SCDTYPE2",
+						"type": "DataFlowReference"
+					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"

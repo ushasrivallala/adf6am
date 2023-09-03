@@ -1,0 +1,197 @@
+{
+	"name": "SCDTYPE2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "customer"
+				},
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "dimcustomer"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "DoesNotExistInsert"
+				},
+				{
+					"name": "startDateFlag"
+				},
+				{
+					"name": "select3"
+				},
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "IsUpdatedFlag"
+				},
+				{
+					"name": "select4"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "union1"
+				},
+				{
+					"name": "select5"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Cno as integer,",
+				"          FName as string,",
+				"          Location as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'query',",
+				"     store: 'sqlserver',",
+				"     query: 'SELECT * FROM customer',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> customer",
+				"source(output(",
+				"          CustKey as integer,",
+				"          Cno as integer,",
+				"          FName as string,",
+				"          Location as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'query',",
+				"     store: 'sqlserver',",
+				"     query: 'SELECT CustKey, Cno, FName,Location FROM dimcustomer\\nWHERE EndDate IS NULL',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> dimcustomer",
+				"customer select(mapColumn(",
+				"          Src_Cno = Cno,",
+				"          Src_FName = FName,",
+				"          Src_Location = Location",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"dimcustomer select(mapColumn(",
+				"          Trg_CustKey = CustKey,",
+				"          Trg_Cno = Cno,",
+				"          Trg_FName = FName,",
+				"          Trg_Location = Location",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select1, select2 exists(Src_Cno == Trg_Cno,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> DoesNotExistInsert",
+				"DoesNotExistInsert derive(startDate = currentTimestamp()) ~> startDateFlag",
+				"startDateFlag select(mapColumn(",
+				"          Cno = Src_Cno,",
+				"          FName = Src_FName,",
+				"          Location = Src_Location,",
+				"          startDate",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"select1, select2 lookup(Src_Cno == Trg_Cno,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1 derive(isUpdated = iif(Src_FName!=Trg_FName || Src_Location!=Trg_Location,1,0)) ~> IsUpdatedFlag",
+				"derivedColumn1 select(mapColumn(",
+				"          Cno = Src_Cno,",
+				"          FName = Src_FName,",
+				"          Location = Src_Location,",
+				"          StartDate",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select4",
+				"filter1 derive(StartDate = currentTimestamp(),",
+				"          EndDate = currentTimestamp()) ~> derivedColumn1",
+				"select3, select4 union(byName: true)~> union1",
+				"derivedColumn1 select(mapColumn(",
+				"          CustKey = Trg_CustKey,",
+				"          isUpdated,",
+				"          EndDate,",
+				"          StartDate",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select5",
+				"IsUpdatedFlag filter(isUpdated==1) ~> filter1",
+				"select5 alterRow(updateIf(true())) ~> alterRow1",
+				"union1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'dimcustomer',",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Cno,",
+				"          FName,",
+				"          Location",
+				"     )) ~> sink1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'dimcustomer',",
+				"     insertable: false,",
+				"     updateable: true,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     keys:['CustKey'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          CustKey,",
+				"          IsInserted = isUpdated,",
+				"          EndDate,",
+				"          StartDate",
+				"     )) ~> sink2"
+			]
+		}
+	}
+}
