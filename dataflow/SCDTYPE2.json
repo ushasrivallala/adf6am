@@ -26,6 +26,13 @@
 						"type": "LinkedServiceReference"
 					},
 					"name": "sink1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink2"
 				}
 			],
 			"transformations": [
@@ -64,6 +71,9 @@
 				},
 				{
 					"name": "filter1"
+				},
+				{
+					"name": "alterRow1"
 				}
 			],
 			"scriptLines": [
@@ -148,6 +158,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select5",
 				"IsUpdatedFlag filter(isUpdated==1) ~> filter1",
+				"select5 alterRow(updateIf(true())) ~> alterRow1",
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table',",
@@ -167,7 +178,25 @@
 				"          Location,",
 				"          startDate = union1@startDate,",
 				"          StartDate = union1@StartDate",
-				"     )) ~> sink1"
+				"     )) ~> sink1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'dimcustomer',",
+				"     insertable: false,",
+				"     updateable: true,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     keys:['Trg_CustKey'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          IsInserted = isUpdated,",
+				"          EndDate",
+				"     )) ~> sink2"
 			]
 		}
 	}
