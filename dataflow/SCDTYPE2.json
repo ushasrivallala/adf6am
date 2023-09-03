@@ -51,9 +51,6 @@
 					"name": "IsUpdatedFlag"
 				},
 				{
-					"name": "filter1"
-				},
-				{
 					"name": "select4"
 				},
 				{
@@ -64,6 +61,9 @@
 				},
 				{
 					"name": "select5"
+				},
+				{
+					"name": "filter1"
 				}
 			],
 			"scriptLines": [
@@ -122,7 +122,6 @@
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> lookup1",
 				"lookup1 derive(isUpdated = iif(Src_FName!=Trg_FName || Src_Location!=Trg_Location,1,0)) ~> IsUpdatedFlag",
-				"IsUpdatedFlag filter(isUpdated==1) ~> filter1",
 				"derivedColumn1 select(mapColumn(",
 				"          Cno = Src_Cno,",
 				"          FName = Src_FName,",
@@ -148,6 +147,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select5",
+				"IsUpdatedFlag filter(isUpdated==1) ~> filter1",
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table',",
