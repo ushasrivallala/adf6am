@@ -1,0 +1,121 @@
+{
+	"name": "SCDTYPE2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "customer"
+				},
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "dimcustomer"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "DoesNotExistInsert"
+				},
+				{
+					"name": "startDateFlag"
+				},
+				{
+					"name": "select3"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Cno as integer,",
+				"          FName as string,",
+				"          Location as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'query',",
+				"     store: 'sqlserver',",
+				"     query: 'SELECT * FROM customer',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> customer",
+				"source(output(",
+				"          CustKey as integer,",
+				"          Cno as integer,",
+				"          FName as string,",
+				"          Location as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'query',",
+				"     store: 'sqlserver',",
+				"     query: 'SELECT CustKey, Cno, FName,Location FROM dimcustomer\\nWHERE EndDate IS NULL',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> dimcustomer",
+				"customer select(mapColumn(",
+				"          Src_Cno = Cno,",
+				"          Src_FName = FName,",
+				"          Src_Location = Location",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"dimcustomer select(mapColumn(",
+				"          Trg_CustKey = CustKey,",
+				"          Trg_Cno = Cno,",
+				"          Trg_FName = FName,",
+				"          Trg_Location = Location",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select1, select2 exists(Src_Cno == Trg_Cno,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> DoesNotExistInsert",
+				"DoesNotExistInsert derive(startDate = currentTimestamp()) ~> startDateFlag",
+				"startDateFlag select(mapColumn(",
+				"          Cno = Src_Cno,",
+				"          FName = Src_FName,",
+				"          Location = Src_Location,",
+				"          startDate",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"select3 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'customer',",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Cno,",
+				"          FName,",
+				"          Location,",
+				"          startDate",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
