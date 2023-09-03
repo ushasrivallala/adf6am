@@ -1,0 +1,9 @@
+{
+	"name": "ushasriadf",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "b8f6b253-009f-4055-8511-b17d364ad5d7",
+		"tenantId": "8e15aaab-5809-4e1a-a129-c327b15cd927"
+	}
+}
