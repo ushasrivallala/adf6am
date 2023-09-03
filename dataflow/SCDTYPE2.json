@@ -46,6 +46,24 @@
 				},
 				{
 					"name": "lookup1"
+				},
+				{
+					"name": "IsUpdatedFlag"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "select4"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "union1"
+				},
+				{
+					"name": "select5"
 				}
 			],
 			"scriptLines": [
@@ -103,7 +121,32 @@
 				"     multiple: false,",
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> lookup1",
-				"select3 sink(allowSchemaDrift: true,",
+				"lookup1 derive(isUpdated = iif(Src_FName!=Trg_FName || Src_Location!=Trg_Location,1,0)) ~> IsUpdatedFlag",
+				"IsUpdatedFlag filter(isUpdated==1) ~> filter1",
+				"derivedColumn1 select(mapColumn(",
+				"          Cno = Src_Cno,",
+				"          FName = Src_FName,",
+				"          Location = Src_Location,",
+				"          StartDate",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select4",
+				"filter1 derive(StartDate = currentTimestamp()) ~> derivedColumn1",
+				"select3, select4 union(byName: true)~> union1",
+				"derivedColumn1 select(mapColumn(",
+				"          Src_Cno,",
+				"          Src_FName,",
+				"          Src_Location,",
+				"          Trg_CustKey,",
+				"          Trg_Cno,",
+				"          Trg_FName,",
+				"          Trg_Location,",
+				"          isUpdated,",
+				"          StartDate",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select5",
+				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table',",
 				"     store: 'sqlserver',",
@@ -120,7 +163,8 @@
 				"          Cno,",
 				"          FName,",
 				"          Location,",
-				"          startDate",
+				"          startDate = union1@startDate,",
+				"          StartDate = union1@StartDate",
 				"     )) ~> sink1"
 			]
 		}
